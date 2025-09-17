@@ -7,45 +7,37 @@ const options = {
       "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI5YzJmMzE3Y2MxMDQ5N2Q4YjI2MTI2M2Q2NTMyY2I1ZiIsIm5iZiI6MTc1NzQ4OTUwMi4yNzIsInN1YiI6IjY4YzEyOTVlMDI1MWZlZmZjZTk0ODUyOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.3DhZTY3n01UvQG1NdkKHogte9L6y6M8swTNVz8BM-xM",
   },
 };
-
+const cardsContainer = document.querySelector("#cards-container");
+const favContainer = document.querySelector("#fav-container");
+const imageBaseUrl = "https://image.tmdb.org/t/p/w200";
 const API_URL =
   "https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc";
 
-async function fetchPopularMovies() {
+// # fetch movies to display on scree when page load
+async function fetchMovies() {
   try {
     const res = await fetch(API_URL, options);
     const data = await res.json();
-    const moviesList = document.getElementById("movies");
-    data.results.forEach((movie) => {
-      const li = document.createElement("li");
-      li.textContent = `${movie.title} (${movie.release_date})`;
-      moviesList.appendChild(li);
-    });
-  } catch (err) {
-    console.error("Error fetching popular movies:", err);
+    return data.results;
+  } catch (error) {
+    console.error("Error fetching popular movies:", error);
   }
 }
-
-//const searchBtn = document.getElementById("searchBtn");
-//const closeBtn = document.getElementById("closeBtn");
-//const dialog = document.getElementById("dialog");
-//const resultsList = document.getElementById("results");
 
 const form = document.querySelector("form");
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   const searchText = event.target.search.value;
-  //here we need to call an api to fetch film with that name and return
-
   try {
-    // const res = search2(searchText).then((results)=>{});
-    const res = await search(searchText);
-    console.log(res);
+    const results = await search(searchText);
+    let cardHtml = "";
 
-    if (res && res.forEach) {
-      res.forEach((element) => {
-        console.log("Movie Title", element.original_title);
+    if (results && results.forEach) {
+      cardsContainer.innerHTML = "";
+      results.forEach((movie) => {
+        cardHtml = createCardHTML(movie);
+        createCard(cardHtml, true);
       });
     } else {
       console.log("No results");
@@ -55,6 +47,7 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
+// # Search movie by any string
 const search = async (searchText) => {
   if (!searchText) return alert("Please enter a search term");
 
@@ -79,48 +72,9 @@ const search = async (searchText) => {
   }
 };
 
-/*
-searchBtn.addEventListener("click", async () => {
-  const query = document.getElementById("searchInput").value.trim();
-  if (!query) return alert("Please enter a search term");
-
-  try {
-    const res = await fetch(
-      `https://api.themoviedb.org/3/search/movie?query=${encodeURIComponent(
-        query
-      )}&include_adult=false&language=en-US&page=1`,
-      {
-        headers: { accept: "application/json" },
-      }
-    );
-
-    const data = await res.json();
-    resultsList.innerHTML = "";
-
-    if (!data.results || data.results.length === 0) {
-      resultsList.innerHTML = "<li>No results found</li>";
-    } else {
-      data.results.forEach((movie) => {
-        const li = document.createElement("li");
-        li.textContent = `${movie.title} (${movie.release_date || "N/A"})`;
-        resultsList.appendChild(li);
-      });
-    }
-
-    dialog.style.display = "block";
-  } catch (err) {
-    console.error("Error fetching search results:", err);
-    resultsList.innerHTML = "<li>Error fetching results</li>";
-    dialog.style.display = "block";
-  }
-});
-*/
-// closeBtn.addEventListener("click", () => {
-//   dialog.style.display = "none";
-// });
-
+// # Add to Favourites
 function addToFavourites(movie) {
-  let favourites = JSON.parse(localStorage.getItem("favourites")) || [];
+  let favourites = JSON.parse(localStorage.getItem("favMovie")) || [];
 
   if (favourites.some((fav) => fav.id === movie.id)) {
     alert("Movie is already in favourites!");
@@ -128,54 +82,78 @@ function addToFavourites(movie) {
   }
 
   favourites.push(movie);
-  localStorage.setItem("favourites", JSON.stringify(favourites));
+  localStorage.setItem("favMovie", JSON.stringify(favourites));
   alert(`${movie.title} added to favourites!`);
 }
 
-//const favBtn = document.createElement("button");
-//favBtn.textContent = "Add to Favourites";
-const addToFavourite = document.querySelector("#addToFavourite");
-addToFavourite.addEventListener("click", () => addToFavourites(movie));
-//movieContainer.appendChild(favBtn);
+// # load favourite movies from localstorage
+const loadFromStorage = () => {
+  const favourites = JSON.parse(localStorage.getItem("favMovie")) || [];
+  let favMovie = "";
+  //console.log(favourites);
+  favourites.forEach((movie) => {
+    favMovie = createFavCardHTML(movie);
+    createFavCard(favMovie);
+    //localStorage.setItem("favourites", JSON.stringify(favourites));
+  });
+};
 
-const journal = document.getElementById("journal");
-const favourites = JSON.parse(localStorage.getItem("favourites")) || [];
+// # create html for favourite movies
+const createFavCardHTML = (movie) => {
+  return `<div class="flex bg-base-100 w-70 md:w-auto rounded-2xl shadow-sm pb-2">
+            <figure class="px-3 pt-3">
+              <img
+              class="w-20 h-15 rounded-xl"
+              src=${imageBaseUrl}${movie.poster_path}
+              alt=${movie.title}
+              class="rounded-xl"
+              />
+            </figure>
+            <div class="felx flex-col justify-between">
+              <h2 class="font-bold mt-1">${movie.title}</h2>
+              <div class="">
+                <button
+                id="removeMovie"
+                class="border border-purple-200 px-2 rounded-lg text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 mt-3"
+                >
+                Remove from list
+              </button>
+            </div>
+          </div>
+        </div>`;
+};
 
-favourites.forEach((movie) => {
-  const movieDiv = document.createElement("div");
-  movieDiv.classList.add("movie");
+const createFavCard = (favMovieCard) => {
+  favContainer.innerHTML += favMovieCard;
+};
 
-  const img = document.createElement("img");
-  img.src = `https://image.tmdb.org/t/p/w200${movie.poster_path}`;
-  movieDiv.appendChild(img);
+// # Load movie list on window load event
+window.addEventListener("load", async () => {
+  console.log("Page has been loaded");
+  let cardHtml = "";
 
-  const details = document.createElement("div");
-  details.classList.add("movie-details");
-  details.innerHTML = `
-    <h2>${movie.title}</h2>
-    <p>${movie.overview || "No description available."}</p>
-    <textarea placeholder="Add personal note">${movie.note || ""}</textarea>
-  `;
-
-  const textarea = details.querySelector("textarea");
-  textarea.addEventListener("change", () => {
-    movie.note = textarea.value;
-    localStorage.setItem("favourites", JSON.stringify(favourites));
+  // # calling default Api to load movies
+  const movies = await fetchMovies();
+  movies.forEach((movie) => {
+    //console.log(movie);
+    cardHtml = createCardHTML(movie);
+    createCard(cardHtml, false);
+    //createFavCardHTML(cardHtml, false);
   });
 
-  movieDiv.appendChild(details);
-  journal.appendChild(movieDiv);
+  // # load fav movies from localstorage if there are any
+  loadFromStorage();
 });
 
-const cards_container = document.querySelector("cards_container");
-
-const createCard = (movie) => {
-  const card = `
-    <div class="card bg-base-100 w-60 shadow-sm">
+// # creat card html with movie info
+const createCardHTML = (movie) => {
+  const posterUrl = "https://image.tmdb.org/t/p/w200";
+  //console.log(`${a}${movie.poster_path}`);
+  return `<div class="card bg-base-100 w-60 shadow-sm">
     <figure class="px-3 pt-3">
     <img
-    src=${movie.poster_path}
-    alt="Shoes"
+    src=${posterUrl}${movie.poster_path}
+    alt=${movie.title}
     class="rounded-xl"
     />
     </figure>
@@ -185,13 +163,35 @@ const createCard = (movie) => {
     ${movie.overview}
     </p>
     <div class="card-actions">
-    <button id="addToFavourite" class="btn btn-primary">
+    <button class="btn btn-primary addToFavourite" data-movie-id="${movie.id}">
     Add to favourite
     </button>
     </div>
     </div>
     `;
-
-  cards_container.appendChild(card);
-  //cards_container.innerHTML = card;
 };
+
+// # Add default or searched movie card to the interface
+const createCard = (cards, isSearch) => {
+  if (!isSearch) {
+    cardsContainer.innerHTML += cards;
+  } else {
+    cardsContainer.innerHTML += cards;
+  }
+};
+
+// # add event listeners to all addToFavourite buttons
+const btns = document.querySelectorAll(".addToFavourite");
+console.log(btns);
+
+document.querySelectorAll(".addToFavourite").forEach((button) => {
+  button.addEventListener("click", () => {
+    console.log(button);
+    //addToFavourites(movie);
+  });
+});
+
+// # set footer with current year
+document.querySelector(
+  "#copyright"
+).textContent = `Copyright © ${new Date().getFullYear()} - All right reserved`;
