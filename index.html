@@ -9,11 +9,11 @@
       type="text/css"
     />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="main.js"></script>
+    <script src="main.js" type="module"></script>
     <title>Movie Diary Project</title>
   </head>
   <body class="mx-5">
-    <nav class="flex justify-between navbar bg-base-100 shadow-sm">
+    <nav class="flex justify-between navbar shadow-sm bg-base-300">
       <div class="pl-5">
         <svg
           width="30"
@@ -38,18 +38,15 @@
     </nav>
     <!-- Header -->
     <header class="flex flex-col justify-center text-center h-48 bg-purple-100">
-      <h1 class="text-3xl font-semibold mb-5">Movie Dairy</h1>
-      <form class="flex justify-center" action="">
+      <h1 class="text-3xl font-semibold mb-5">Movie Dairy Search</h1>
+      <form class="flex justify-center">
         <input
           class="w-6/12 rounded-l-md shadow-lg border-gray-300 h-10 px-4"
-          id="search"
+          name="search"
           type="text"
           placeholder="search movies..."
         />
-        <button
-          type="submit"
-          class="btn bg-purple-900 text-white font-semibold rounded-r-md"
-        >
+        <button class="btn btn-primary text-white font-semibold rounded-r-md">
           Search
         </button>
       </form>
@@ -59,63 +56,22 @@
     <main class="flex justify-between mt-5 mb-5 gap-4">
       <!-- Movie Section -->
       <section
-        class="flex flex-col justify-between bg-purple-200 rounded-xl w-screen gap-4 p-5"
-      >
-        <div>
+        class="flex flex-col justify-between bg-purple-200 rounded-xl w-screen gap-4 p-5">
+        
           <h1 class="font-semibold text-3xl">Movies</h1>
-        </div>
-
-        <!-- CARDS -->
-        <div class="flex justify-start flex-wrap gap-5">
-          <!-- Card 1-->
-          <div class="card bg-base-100 w-60 shadow-sm">
-            <figure class="px-3 pt-3">
-              <img
-                src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-                alt="Shoes"
-                class="rounded-xl"
-              />
-            </figure>
-            <div class="card-body items-center text-center">
-              <h2 class="card-title">Card Title</h2>
-              <p>
-                A card component has a figure, a body part, and inside body
-                there are title and actions parts
-              </p>
-              <div class="card-actions">
-                <button id="addToFavourite" class="btn btn-primary">
-                  Add to favourite
-                </button>
-              </div>
-            </div>
-          </div>
+        
+        <!-- Cards -->
+        <div id="cards-container" class="flex justify-around flex-wrap gap-5"></div>
         </div>
       </section>
 
       <!-- Favourite Section -->
-      <section class="bg-pink-800 w-130 p-5 space-y-4 bg-purple-300 rounded-xl">
-        <h1 class="font-semibold text-3xl">favourite movies</h1>
-        <div class="flex bg-base-100 w-70 md:w-auto rounded-2xl shadow-sm pb-2">
-          <figure class="px-3 pt-3">
-            <img
-              class="w-20 h-15 rounded-xl"
-              src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-              alt="Shoes"
-              class="rounded-xl"
-            />
-          </figure>
-          <div class="felx flex-col justify-between">
-            <h2 class="font-bold mt-1">Movie Name</h2>
-            <div class="">
-              <button
-                id="removeMovie"
-                class="border border-purple-200 px-2 rounded-lg text-purple-600 hover:border-transparent hover:bg-purple-600 hover:text-white active:bg-purple-700 mt-3"
-              >
-                Remove
-              </button>
-            </div>
-          </div>
-        </div>
+      <section class="w-130 p-5 space-y-4 bg-purple-300 rounded-xl">
+        <h1 class="font-semibold text-3xl">Favourite Movies</h1>
+        
+        <!-- Fav Movie Cards -->
+        <div id="fav-container" class="space-y-4"></div>
+      </div> 
       </section>
     </main>
 
